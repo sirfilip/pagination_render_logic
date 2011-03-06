@@ -1,0 +1,3 @@
+module PaginationRenderLogic
+  # Your code goes here...
+end
