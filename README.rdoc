@@ -1,0 +1,1 @@
+It will hold the logic required for rendering different kinds of pagination templates.
