@@ -13,8 +13,8 @@ module PaginationRenderLogic
       @current_page = args[:current_page] || 1
     end
     
-    def config!
-      config
+    def config!(args = {})
+      config(args)
       setup
     end
   

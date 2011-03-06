@@ -1,1 +1,119 @@
-It will hold the logic required for rendering different kinds of pagination templates.
+= pagination_render_logic
+I needed a gem that will provide only the logic for displaying different styles of 
+pagination so i have built this gem to do exactly that. So far i have created only the
+digg style pagination but i plan to add Google, simple with Previous and Next page only
+and other...
+
+Here is how the digg pagination looks like
+  # First Previous 1 2 3 ... 22 23 24 25 26 [27] 28 29 30 31 32 ... 48 49 50 Next Last
+
+The logic is simple:
+The chunk 1 2 3 ... i call first_page_section
+The chunk ... 48 49 50 i call last_page_section
+The chunk 22 23 24 25 26 [27] 28 29 30 31 32 is middle_section
+
+The responsibility of the gem is also simple, it should provide the answers of the following 
+questions in order to render this type of pagination easy. Note that when i say links i
+refer to the page numbers.
+
+1. Do we have links at all?
+2. Do we need to render the first_page_section and if true give me the links 
+  (note that the dots are not included in the links we add them manually) 
+3. Do we have a last_page_section and if true give me the links
+4. Give me the middle_section since it is always present if we have links.
+5. And the first_page if has_first_page, next_page if has_next_page, previous_page etc. 
+
+Usage Example:
+Here is how i use this gem in my sinatra blog paginate helper.
+first i require this gem in my config.ru
+  
+  require 'paginate-simple'
+  require 'pagination_render_logic/digg'
+
+Note that pagination_render_logic does not depend on paginate-simple i simply use it for
+convenience.
+In order to use my renderer i have created a class in my lib dir which is autoloaded by default.
+
+  class PaginationRenderer
+   extend PaginationRenderLogic::Digg
+  end
+  
+And here is the sinatra paginatinon helper
+
+  require 'sinatra/base'
+
+  module Sinatra
+    module PaginationHelper
+      def paginate(resource)
+        data = []
+        PaginationRenderer.config! :total_pages => Paginator.num_of_pages, 
+                                   :current_page => Paginator.current_page,
+                                   :after_first_page => 3,
+                                   :arround_current_page => 5
+                    
+        if PaginationRenderer.has_links?
+          data << '<div class="pagination">'
+          data << "<a href =\"/#{resource}/?page=#{PaginationRenderer.first_page}\">First</a>" if PaginationRenderer.has_first_page?
+          data << "<a href =\"/#{resource}/?page=#{PaginationRenderer.previous_page}\">Previous</a>" if PaginationRenderer.has_previous_page?
+          if PaginationRenderer.has_first_page_section?
+            PaginationRenderer.first_page_section.each do |page|
+              data << (PaginationRenderer.current_page == page ? "<span>#{page}</span>" : "<a href =\"/#{resource}/?page=#{page}\">#{page}</a>") 
+            end
+            data << "<span>...</span>"
+          end
+          PaginationRenderer.middle_section.each do |page|
+            data << (PaginationRenderer.current_page == page ? "<span>#{page}</span>" : "<a href =\"/#{resource}/?page=#{page}\">#{page}</a>")
+          end
+          if PaginationRenderer.has_last_page_section? 
+            data << "<span>...</span>"
+            PaginationRenderer.last_page_section.each do |page|
+              data << (PaginationRenderer.current_page == page ? "<span>#{page}</span>" : "<a href =\"/#{resource}/?page=#{page}\">#{page}</a>") 
+            end
+          end
+          data << "<a href =\"/#{resource}/?page=#{PaginationRenderer.next_page}\">Next</a>" if PaginationRenderer.has_next_page?
+          data << "<a href =\"/#{resource}/?page=#{PaginationRenderer.last_page}\">Last</a>" if PaginationRenderer.has_last_page?
+          data << '</div>'
+        end
+        data.join(' ')
+      end
+    end
+  
+    # helpers PaginationHelper
+  end
+
+and i use it like this in my haml file
+
+  = paginate 'posts'
+
+  
+Although there is a lot of code here it is quite simple to use it. Let me explain...
+First we configure the renderer like this
+
+  PaginationRenderer.config! :total_pages => Paginator.num_of_pages, 
+                             :current_page => Paginator.current_page,
+                             :after_first_page => 3,
+                             :arround_current_page => 5
+
+It takes four arguments:
+1. total_page which is the number of pages we wish to render  
+2. current_page which is the current page we are visiting
+3. after_first_page is the number of links we want to see after the first page
+4. arround_current_page is the number of links we want to see around the current page.
+
+And then depending on the has_first_page_section?, has_last_page_section? we build the 
+links that we need.
+ 
+== Contributing to pagination_render_logic
+ 
+* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
+* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
+* Fork the project
+* Start a feature/bugfix branch
+* Commit and push until you are happy with your contribution
+* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
+* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+
+== Copyright
+
+Copyright (c) 2011 filip. See LICENSE.txt for
+further details.
