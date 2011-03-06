@@ -35,16 +35,32 @@ module PaginationRenderLogic
       @current_page < @total_pages
     end
     
+    def next_page
+      @current_page + 1
+    end
+    
     def has_last_page?
       @current_page < @total_pages
+    end
+    
+    def last_page
+      @total_pages
     end
     
     def has_first_page?
       @current_page > 1
     end
     
+    def first_page
+      1
+    end
+    
     def has_previous_page?
       @current_page > 1
+    end
+    
+    def previous_page
+      @current_page - 1
     end
     
     def has_links?
