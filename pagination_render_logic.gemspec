@@ -6,11 +6,21 @@ Gem::Specification.new do |s|
   s.name        = "pagination_render_logic"
   s.version     = PaginationRenderLogic::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["TODO: Write your name"]
-  s.email       = ["TODO: Write your email address"]
-  s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
+  s.authors     = ["sirfilip"]
+  s.email       = ["github.sirfilip@gmail.com"]
+  s.homepage    = "http://github.com/sirfilip/pagination_render_logic"
+  s.summary     = %q{Will provide logic for rendering different types of pagination}
+  s.description = %q{Will provide logic for rendering different types of pagination. ex floating digg style pagination}
+  
+  s.add_development_dependency("bundler")  
+  s.add_development_dependency("rspec")
+
+  s.licenses = ["MIT"]
+  
+  s.extra_rdoc_files = [
+    "LICENSE.txt",
+    "README.rdoc"
+  ]
 
   s.rubyforge_project = "pagination_render_logic"
 
